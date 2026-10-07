@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kana Michi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DM+Mono:wght@400;500&family=Shippori+Mincho+B1:wght@600;800&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+  <link rel="stylesheet" href="style.css?v=4">
+  <script src="app.js?v=4" defer></script>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<div class="app">
+  <header class="topbar">
+    <a class="home" href="https://sm314.com" target="_blank" rel="noopener">sm314.com <span aria-hidden="true">&#8599;</span></a>
+    <div class="brand">
+      <h1>Kana Michi</h1>
+      <span class="jp" id="brandJp">かなみち</span>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Writing system">
+        <button type="button" id="scHira" data-script="hira" aria-pressed="true"><span class="k">あ</span><span class="t">Hiragana</span></button>
+        <button type="button" id="scKata" data-script="kata" aria-pressed="false"><span class="k">ア</span><span class="t">Katakana</span></button>
+        <button type="button" id="scMix" data-script="mix" aria-pressed="false"><span class="k">あア</span><span class="t">Mix</span></button>
+      </div>
+      <div class="seg" role="group" aria-label="Place">
+        <button type="button" id="plRural" data-place="rural" aria-pressed="true"><span class="k">田</span><span class="t">Countryside</span></button>
+        <button type="button" id="plUrban" data-place="urban" aria-pressed="false"><span class="k">都</span><span class="t">Tokyo</span></button>
+      </div>
+      <div class="seg" role="group" aria-label="Time of day">
+        <button type="button" id="tmDay" data-time="day" aria-pressed="true"><span class="k">昼</span><span class="t">Day</span></button>
+        <button type="button" id="tmNight" data-time="night" aria-pressed="false"><span class="k">夜</span><span class="t">Night</span></button>
+      </div>
+      <button type="button" class="iconbtn" id="soundBtn" aria-pressed="true" title="Sound and spoken kana">Sound</button>
+    </div>
+  </header>
+
+  <div class="spacer"></div>
+
+  <main class="board" id="board">
+    <div class="stats">
+      <div class="stat round"><span>Round</span><b id="stRound">1</b></div>
+      <div class="stat"><b id="stMatched">0/8</b><span>matched</span></div>
+      <div class="stat"><b id="stMiss">0</b><span>misses</span></div>
+      <div class="stat"><b id="stStreak">0</b><span>streak</span></div>
+      <div class="stat"><b id="stBest">0</b><span>best</span></div>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    </div>
+
+    <section>
+      <div class="label"><h2>Sounds</h2><p>Drop each kana on the sound it makes</p></div>
+      <div class="slots" id="slots"></div>
+    </section>
+
+    <section>
+      <div class="label"><h2 id="trayTitle">Hiragana</h2><p>Drag, or tap a kana then tap its sound</p></div>
+      <div class="tray" id="tray"></div>
+      <div class="clear" id="clear" hidden>
+        <div class="hanko" id="hanko">合格</div>
+        <div class="clear-text">
+          <h3 id="clearTitle">Round 1 clear</h3>
+          <p id="clearLine">8 matched</p>
+        </div>
+        <button type="button" class="btn primary" id="nextBtn">Next round</button>
+      </div>
+    </section>
+
+    <div class="foot">
+      <div class="rows">
+        <div class="label"><h2>Practice rows</h2></div>
+        <div class="chips" id="chips"></div>
+        <p class="keys"><kbd>H</kbd> hiragana &nbsp;<kbd>K</kbd> katakana &nbsp;<kbd>M</kbd> mix &nbsp;<kbd>N</kbd> new round &nbsp;<kbd>Esc</kbd> drop selection</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" id="peekBtn">Peek a pair</button>
+        <button type="button" class="btn" id="newBtn">New round</button>
+      </div>
+    </div>
+    <div class="sr" aria-live="polite" id="live"></div>
+  </main>
+</div>
+
+</body>
+</html>
