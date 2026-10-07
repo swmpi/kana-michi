@@ -18,7 +18,7 @@ const DATA = [
   ['wa','わ','w'],['wo','を','w'],['n','ん','w'],
   ['ga','が','g'],['gi','ぎ','g'],['gu','ぐ','g'],['ge','げ','g'],['go','ご','g'],
   ['za','ざ','z'],['ji','じ','z'],['zu','ず','z'],['ze','ぜ','z'],['zo','ぞ','z'],
-  ['da','だ','d'],['de','で','d'],['do','ど','d'],
+  ['da','だ','d'],['di','ぢ','d','ji'],['du','づ','d','zu'],['de','で','d'],['do','ど','d'],
   ['ba','ば','b'],['bi','び','b'],['bu','ぶ','b'],['be','べ','b'],['bo','ぼ','b'],
   ['pa','ぱ','p'],['pi','ぴ','p'],['pu','ぷ','p'],['pe','ぺ','p'],['po','ぽ','p']
 ];
@@ -29,6 +29,10 @@ const ROWS = [
 const BASIC = ['a','k','s','t','n','h','m','y','r','w'];
 const BY_R = Object.fromEntries(DATA.map(d => [d[0], d]));
 const kata = s => String.fromCharCode(s.charCodeAt(0) + 0x60);
+// the sound shown on a slot; ぢ and づ are stored as di/du but read as ji/zu
+const sound = r => BY_R[r][3] || r;
+// kana that share a sound never appear in the same round
+const CLASH = { ji:'di', di:'ji', zu:'du', du:'zu' };
 const ROUND_SIZE = 8;
 
 /* ---------------- state ---------------- */
@@ -69,7 +73,12 @@ function announce(t){ live.textContent = ''; setTimeout(() => { live.textContent
 function newRound(advance){
   if (advance) R.n++;
   const pool = DATA.filter(d => S.rows.includes(d[2]));
-  const picks = shuffle(pool).slice(0, Math.min(ROUND_SIZE, pool.length)).map(d => d[0]);
+  const picks = [];
+  for (const d of shuffle(pool)){
+    if (picks.length >= ROUND_SIZE) break;
+    if (CLASH[d[0]] && picks.includes(CLASH[d[0]])) continue;
+    picks.push(d[0]);
+  }
   R.items = picks; R.matched = new Set(); R.misses = 0; R.peeks = 0;
   R.scripts = {}; picks.forEach(r => { R.scripts[r] = Math.random() < .5 ? 'hira' : 'kata'; });
   deselect();
@@ -77,8 +86,8 @@ function newRound(advance){
   shuffle(picks).forEach(r => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'slot'; b.dataset.r = r;
-    b.setAttribute('aria-label', 'Sound ' + r);
-    b.innerHTML = '<span class="kana"></span><span class="roma">' + r + '</span>';
+    b.setAttribute('aria-label', 'Sound ' + sound(r));
+    b.innerHTML = '<span class="kana"></span><span class="roma">' + sound(r) + '</span>';
     slotsEl.appendChild(b);
   });
   trayEl.innerHTML = '';
@@ -168,10 +177,10 @@ function attempt(tile, slot){
   R.misses++; streak = 0;
   restart(tile, 'nope'); restart(slot, 'nope');
   const tag = tile.querySelector('.tag');
-  tag.textContent = 'this is ' + r; tag.classList.add('show');
+  tag.textContent = 'this is ' + sound(r); tag.classList.add('show');
   clearTimeout(tag._t); tag._t = setTimeout(() => tag.classList.remove('show'), 1500);
   sfx('bad');
-  announce('Not quite. ' + glyphFor(r) + ' is ' + r + '.');
+  announce('Not quite. ' + glyphFor(r) + ' is ' + sound(r) + '.');
   updateStats();
   return false;
 }
@@ -181,10 +190,10 @@ function match(tile, slot){
   if (streak > S.best){ S.best = streak; savePrefs(); }
   tile.classList.add('gone'); tile.disabled = true;
   slot.classList.remove('armed','over'); slot.classList.add('done');
-  slot.setAttribute('aria-label', 'Sound ' + r + ', matched ' + glyphFor(r));
+  slot.setAttribute('aria-label', 'Sound ' + sound(r) + ', matched ' + glyphFor(r));
   deselect();
   sfx('good'); say(glyphFor(r));
-  announce(glyphFor(r) + ' is ' + r + '. Correct.');
+  announce(glyphFor(r) + ' is ' + sound(r) + '. Correct.');
   updateStats();
   if (R.matched.size === R.items.length) setTimeout(roundClear, 450);
 }
@@ -291,7 +300,7 @@ $('peekBtn').addEventListener('click', () => {
   const t = trayEl.querySelector('.tile[data-r="' + r + '"]'), s = slotsEl.querySelector('.slot[data-r="' + r + '"]');
   restart(t, 'peek'); restart(s, 'peek');
   setTimeout(() => { t.classList.remove('peek'); s.classList.remove('peek'); }, 1400);
-  announce(glyphFor(r) + ' goes with ' + r + '.');
+  announce(glyphFor(r) + ' goes with ' + sound(r) + '.');
 });
 $('newBtn').addEventListener('click', () => newRound(R.matched.size === R.items.length));
 $('nextBtn').addEventListener('click', () => newRound(true));
